@@ -318,18 +318,84 @@ const App = () => {
     };
 
     const handleTranslate = async () => {
-        if (!selectedImage) {
-            setError('Please upload or capture an image first.');
-            return;
+    if (!selectedImage) {
+        setError('Please upload or capture an image first.');
+        return;
+    }
+    setIsLoading(true);
+    setError('');
+    setExtractedText('');
+    setTranslatedText('');
+    setContextualInfo('');
+    setOverlayedImage(null);
+
+    try {
+        // THIS IS THE FIX: Use the API key from your firebaseConfig
+        const apiKey = firebaseConfig.apiKey;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+        // Step 1: Text Extraction
+        const visionPrompt = "Extract all visible text from this image. If there are multiple distinct blocks of text, please list them individually.";
+        const visionPayload = {
+            contents: [{ role: "user", parts: [{ text: visionPrompt }, { inlineData: { mimeType: "image/jpeg", data: selectedImage } }] }]
+        };
+        const visionResponse = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(visionPayload) });
+        if (!visionResponse.ok) {
+             const errorData = await visionResponse.json();
+             throw new Error(`Text extraction failed: ${errorData.error?.message || 'Check API key and billing.'}`);
         }
-        setIsLoading(true);
-        setError('');
-        // ... Reset states ...
-        try {
-            const visionPrompt = "Extract all visible text from this image. If there are multiple distinct blocks of text, please list them individually.";
-            const visionPayload = {
-                contents: [{ role: "user", parts: [{ text: visionPrompt }, { inlineData: { mimeType: "image/jpeg", data: selectedImage } }] }]
-            };
+        const visionResult = await visionResponse.json();
+        const extracted = visionResult.candidates?.[0]?.content?.parts?.[0]?.text.trim() || 'No text extracted.';
+        setExtractedText(extracted);
+
+        if (extracted === 'No text extracted.' || extracted.length < 2) {
+             setIsLoading(false);
+             return;
+        }
+
+        // Step 2: Translation
+        const translationPrompt = `Translate the following text into <span class="math-inline">\{targetLanguage\}\: "</span>{extracted}"`;
+        const translationPayload = { contents: [{ role: "user", parts: [{ text: translationPrompt }] }] };
+        const translationResponse = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(translationPayload) });
+        if (!translationResponse.ok) throw new Error('Translation failed');
+        const translationResult = await translationResponse.json();
+        const translated = translationResult.candidates?.[0]?.content?.parts?.[0]?.text.trim() || 'Translation failed.';
+        setTranslatedText(translated);
+
+        // Step 3: Contextual Info
+        const contextPrompt = `Provide brief cultural context for the text: "${extracted}". Keep it concise.`;
+        const contextPayload = { contents: [{ role: "user", parts: [{ text: contextPrompt }] }] };
+        const contextResponse = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(contextPayload) });
+        const contextResult = contextResponse.ok ? await contextResponse.json() : null;
+        const context = contextResult?.candidates?.[0]?.content?.parts?.[0]?.text.trim() || 'No context available.';
+        setContextualInfo(context);
+
+        // Step 4: Overlay image and save to history
+        const img = new Image();
+        img.src = `data:image/jpeg;base64,${selectedImage}`;
+        img.onload = () => {
+            const overlaidDataUrl = drawTextOnImage(img, translated);
+            setOverlayedImage(overlaidDataUrl);
+            const thumbCanvas = document.createElement('canvas');
+            const scale = 100 / img.width;
+            thumbCanvas.width = 100;
+            thumbCanvas.height = img.height * scale;
+            const thumbCtx = thumbCanvas.getContext('2d');
+            thumbCtx.drawImage(img, 0, 0, thumbCanvas.width, thumbCanvas.height);
+            const thumbnail = thumbCanvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+            addTranslationHistory({ originalImageThumbnail: thumbnail, originalText: extracted, translatedText: translated, contextualInfo: context, targetLanguage, isFavorite: false, notes: '' });
+        };
+        img.onerror = () => {
+            console.error("Failed to load image for overlay.");
+            addTranslationHistory({ originalText: extracted, translatedText: translated, contextualInfo: context, targetLanguage, isFavorite: false, notes: '' });
+        };
+
+    } catch (err) {
+        setError(`An error occurred: ${err.message}`);
+    } finally {
+        setIsLoading(false);
+    }
+};
             const apiKey = ""; // Canvas handles this
             const visionApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             const visionResponse = await fetch(visionApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(visionPayload) });
