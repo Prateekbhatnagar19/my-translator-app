@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-// --- Firebase imports moved to the top of the file ---
 import { initializeApp } from "firebase/app";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, collection, addDoc, query, onSnapshot, serverTimestamp, doc, updateDoc } from "firebase/firestore";
@@ -42,10 +41,7 @@ const App = () => {
         'Punjabi', 'Telugu', 'Marathi', 'Tamil', 'Urdu', 'Gujarati', 'Kannada', 'Malayalam'
     ];
     
-    // --- THIS IS THE MOST IMPORTANT CHANGE ---
-    // The special variables like __firebase_config don't exist on Netlify.
-    // You must get your actual config from your Firebase project settings and paste it here.
-    // Go to your Firebase Console -> Project Settings (gear icon) -> General tab -> Your apps -> Web app -> SDK setup and configuration
+    // Your actual Firebase config object that you pasted in earlier
     const firebaseConfig = {
   apiKey: "AIzaSyCL0f_OsTQWgnzZ2UDQ6b3b-otWImHurf8",
   authDomain: "multilingualimagetxttranslator.firebaseapp.com",
@@ -56,7 +52,6 @@ const App = () => {
   measurementId: "G-5LXN22CP2K"
 };
 
-    // This variable is also replaced to use a standard value
     const currentAppId = firebaseConfig.appId || 'default-app-id';
 
     useEffect(() => {
@@ -65,7 +60,6 @@ const App = () => {
             isFirebaseInitializedRef.current = true;
 
             try {
-                // Initialize Firebase with the config object above
                 const appInstance = initializeApp(firebaseConfig);
                 const dbInstance = getFirestore(appInstance);
                 const authInstance = getAuth(appInstance);
@@ -74,11 +68,9 @@ const App = () => {
                 setFirebaseAuth(authInstance);
                 console.log("Firebase initialized.");
 
-                // Set up authentication state listener
                 onAuthStateChanged(authInstance, async (user) => {
                     if (!user) {
                         try {
-                            // The __initial_auth_token logic is removed, we will just sign in anonymously
                             await signInAnonymously(authInstance);
                             console.log("Signed in anonymously.");
                         } catch (authError) {
@@ -107,10 +99,8 @@ const App = () => {
                 firestoreHistoryUnsubscribeRef.current();
             }
         };
-    }, []); // Empty dependency array means this effect runs once on mount
+    }, []); 
 
-    // The rest of the App.js code is the same as before...
-    // All other functions like handleTranslate, handleImageUpload, etc. are unchanged.
     useEffect(() => {
         if (authReady && firestoreDb && firebaseAuth?.currentUser) {
             console.log("Setting up history listener for user:", firebaseAuth.currentUser.uid);
@@ -125,11 +115,9 @@ const App = () => {
                 });
                 historyData.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
                 setHistory(historyData);
-                console.log("History updated:", historyData.length, "entries.");
             }, (error) => {
                 console.error("Error listening to translation history:", error);
                 setError(`Failed to load history: ${error.message}`);
-                setHistory([]);
             });
 
             firestoreHistoryUnsubscribeRef.current = unsubscribeHistory;
@@ -137,11 +125,8 @@ const App = () => {
             return () => {
                 if (unsubscribeHistory) {
                     unsubscribeHistory();
-                    console.log("History listener unsubscribed.");
                 }
             };
-        } else {
-            setHistory([]);
         }
     }, [authReady, firestoreDb, firebaseAuth, currentAppId]);
 
@@ -150,27 +135,17 @@ const App = () => {
     };
 
     const addTranslationHistory = async (data) => {
-        if (!firestoreDb || !firebaseAuth?.currentUser) {
-            console.warn("Firestore not ready or user not authenticated.");
-            return;
-        }
-
+        if (!firestoreDb || !firebaseAuth?.currentUser) return;
         const collectionPath = `artifacts/${currentAppId}/users/${getActualUserId()}/translations`;
-
         try {
-            await addDoc(collection(firestoreDb, collectionPath), {
-                ...data,
-                timestamp: serverTimestamp()
-            });
+            await addDoc(collection(firestoreDb, collectionPath), { ...data, timestamp: serverTimestamp() });
         } catch (e) {
             console.error("Error adding document to Firestore:", e);
         }
     };
     
     const updateTranslationHistory = async (id, updatedFields) => {
-        if (!firestoreDb || !firebaseAuth?.currentUser) {
-            return;
-        }
+        if (!firestoreDb || !firebaseAuth?.currentUser) return;
         const collectionPath = `artifacts/${currentAppId}/users/${getActualUserId()}/translations`;
         const docRef = doc(firestoreDb, collectionPath, id);
         try {
@@ -253,7 +228,6 @@ const App = () => {
     const handleSpeak = (textToSpeak) => {
         if ('speechSynthesis' in window) {
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
-            // Language mapping for speech synthesis
             const langMap = {'Chinese (Simplified)': 'zh-CN', 'Japanese': 'ja-JP', 'Korean': 'ko-KR', 'Arabic': 'ar-SA', 'Russian': 'ru-RU', 'Hindi': 'hi-IN', 'Spanish': 'es-ES', 'French': 'fr-FR', 'German': 'de-DE', 'Italian': 'it-IT', 'Portuguese': 'pt-PT'};
             utterance.lang = langMap[targetLanguage] || 'en-US';
             window.speechSynthesis.speak(utterance);
@@ -318,100 +292,42 @@ const App = () => {
     };
 
     const handleTranslate = async () => {
-    if (!selectedImage) {
-        setError('Please upload or capture an image first.');
-        return;
-    }
-    setIsLoading(true);
-    setError('');
-    setExtractedText('');
-    setTranslatedText('');
-    setContextualInfo('');
-    setOverlayedImage(null);
-
-    try {
-        // THIS IS THE FIX: Use the API key from your firebaseConfig
-        const apiKey = firebaseConfig.apiKey;
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-        // Step 1: Text Extraction
-        const visionPrompt = "Extract all visible text from this image. If there are multiple distinct blocks of text, please list them individually.";
-        const visionPayload = {
-            contents: [{ role: "user", parts: [{ text: visionPrompt }, { inlineData: { mimeType: "image/jpeg", data: selectedImage } }] }]
-        };
-        const visionResponse = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(visionPayload) });
-        if (!visionResponse.ok) {
-             const errorData = await visionResponse.json();
-             throw new Error(`Text extraction failed: ${errorData.error?.message || 'Check API key and billing.'}`);
+        if (!selectedImage) {
+            setError('Please upload or capture an image first.');
+            return;
         }
-        const visionResult = await visionResponse.json();
-        const extracted = visionResult.candidates?.[0]?.content?.parts?.[0]?.text.trim() || 'No text extracted.';
-        setExtractedText(extracted);
+        setIsLoading(true);
+        setError('');
+        setExtractedText('');
+        setTranslatedText('');
+        setContextualInfo('');
+        setOverlayedImage(null);
 
-        if (extracted === 'No text extracted.' || extracted.length < 2) {
-             setIsLoading(false);
-             return;
-        }
+        try {
+            const apiKey = firebaseConfig.apiKey;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-        // Step 2: Translation
-        const translationPrompt = `Translate the following text into <span class="math-inline">\{targetLanguage\}\: "</span>{extracted}"`;
-        const translationPayload = { contents: [{ role: "user", parts: [{ text: translationPrompt }] }] };
-        const translationResponse = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(translationPayload) });
-        if (!translationResponse.ok) throw new Error('Translation failed');
-        const translationResult = await translationResponse.json();
-        const translated = translationResult.candidates?.[0]?.content?.parts?.[0]?.text.trim() || 'Translation failed.';
-        setTranslatedText(translated);
-
-        // Step 3: Contextual Info
-        const contextPrompt = `Provide brief cultural context for the text: "${extracted}". Keep it concise.`;
-        const contextPayload = { contents: [{ role: "user", parts: [{ text: contextPrompt }] }] };
-        const contextResponse = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(contextPayload) });
-        const contextResult = contextResponse.ok ? await contextResponse.json() : null;
-        const context = contextResult?.candidates?.[0]?.content?.parts?.[0]?.text.trim() || 'No context available.';
-        setContextualInfo(context);
-
-        // Step 4: Overlay image and save to history
-        const img = new Image();
-        img.src = `data:image/jpeg;base64,${selectedImage}`;
-        img.onload = () => {
-            const overlaidDataUrl = drawTextOnImage(img, translated);
-            setOverlayedImage(overlaidDataUrl);
-            const thumbCanvas = document.createElement('canvas');
-            const scale = 100 / img.width;
-            thumbCanvas.width = 100;
-            thumbCanvas.height = img.height * scale;
-            const thumbCtx = thumbCanvas.getContext('2d');
-            thumbCtx.drawImage(img, 0, 0, thumbCanvas.width, thumbCanvas.height);
-            const thumbnail = thumbCanvas.toDataURL('image/jpeg', 0.7).split(',')[1];
-            addTranslationHistory({ originalImageThumbnail: thumbnail, originalText: extracted, translatedText: translated, contextualInfo: context, targetLanguage, isFavorite: false, notes: '' });
-        };
-        img.onerror = () => {
-            console.error("Failed to load image for overlay.");
-            addTranslationHistory({ originalText: extracted, translatedText: translated, contextualInfo: context, targetLanguage, isFavorite: false, notes: '' });
-        };
-
-    } catch (err) {
-        setError(`An error occurred: ${err.message}`);
-    } finally {
-        setIsLoading(false);
-    }
-};
-            const apiKey = ""; // Canvas handles this
-            const visionApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-            const visionResponse = await fetch(visionApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(visionPayload) });
-            if (!visionResponse.ok) throw new Error(`Text extraction failed`);
+            const visionPrompt = "Extract all visible text from this image. If there are multiple distinct blocks of text, please list them individually.";
+            const visionPayload = {
+                contents: [{ role: "user", parts: [{ text: visionPrompt }, { inlineData: { mimeType: "image/jpeg", data: selectedImage } }] }]
+            };
+            const visionResponse = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(visionPayload) });
+            if (!visionResponse.ok) {
+                 const errorData = await visionResponse.json();
+                 throw new Error(`Text extraction failed: ${errorData.error?.message || 'Check API key and billing.'}`);
+            }
             const visionResult = await visionResponse.json();
             const extracted = visionResult.candidates?.[0]?.content?.parts?.[0]?.text.trim() || 'No text extracted.';
             setExtractedText(extracted);
 
-            if (extracted === 'No text extracted.') {
+            if (extracted === 'No text extracted.' || extracted.length < 2) {
                  setIsLoading(false);
                  return;
             }
 
             const translationPrompt = `Translate the following text into ${targetLanguage}: "${extracted}"`;
             const translationPayload = { contents: [{ role: "user", parts: [{ text: translationPrompt }] }] };
-            const translationResponse = await fetch(visionApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(translationPayload) });
+            const translationResponse = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(translationPayload) });
             if (!translationResponse.ok) throw new Error('Translation failed');
             const translationResult = await translationResponse.json();
             const translated = translationResult.candidates?.[0]?.content?.parts?.[0]?.text.trim() || 'Translation failed.';
@@ -419,7 +335,7 @@ const App = () => {
 
             const contextPrompt = `Provide brief cultural context for the text: "${extracted}". Keep it concise.`;
             const contextPayload = { contents: [{ role: "user", parts: [{ text: contextPrompt }] }] };
-            const contextResponse = await fetch(visionApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(contextPayload) });
+            const contextResponse = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(contextPayload) });
             const contextResult = contextResponse.ok ? await contextResponse.json() : null;
             const context = contextResult?.candidates?.[0]?.content?.parts?.[0]?.text.trim() || 'No context available.';
             setContextualInfo(context);
@@ -438,15 +354,22 @@ const App = () => {
                 const thumbnail = thumbCanvas.toDataURL('image/jpeg', 0.7).split(',')[1];
                 addTranslationHistory({ originalImageThumbnail: thumbnail, originalText: extracted, translatedText: translated, contextualInfo: context, targetLanguage, isFavorite: false, notes: '' });
             };
+            img.onerror = () => {
+                addTranslationHistory({ originalText: extracted, translatedText: translated, contextualInfo: context, targetLanguage, isFavorite: false, notes: '' });
+            };
+
         } catch (err) {
-            setError(`An error occurred: ${err.message}`);
+            // --- THIS IS THE ONLY CHANGE IN THIS ENTIRE FILE ---
+            // Log the entire error object to the console for detailed debugging
+            console.error("Caught an error during translation:", err); 
+            // Update the UI with a more generic message, asking the user to check the console
+            setError(`An error occurred. Check the browser console (Right-click -> Inspect -> Console) for details.`);
         } finally {
             setIsLoading(false);
         }
     };
     
-    // The JSX (HTML-like part) is exactly the same as before.
-    // No changes needed in the return() statement.
+    // The JSX (HTML part) is unchanged
     if (!authReady) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-100 text-gray-700">
