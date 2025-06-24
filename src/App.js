@@ -3,12 +3,9 @@ import { initializeApp } from "firebase/app";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, collection, addDoc, query, onSnapshot, serverTimestamp, doc, updateDoc } from "firebase/firestore";
 
-// --- Import the dedicated CSS file for styling ---
-import './App.css';
-
 // --- Helper component for icons ---
-const Icon = ({ path, className = "w-5 h-5" }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor">
+const Icon = ({ path, className = "w-5 h-5", style = {} }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor" style={style}>
         <path fillRule="evenodd" d={path} clipRule="evenodd" />
     </svg>
 );
@@ -65,6 +62,10 @@ const App = () => {
     const currentAppId = firebaseConfig.appId || 'default-app-id';
 
     useEffect(() => {
+        document.body.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        document.body.style.backgroundColor = '#f0f2f5';
+        document.body.style.margin = '0';
+
         const initFirebase = async () => {
             if (isFirebaseInitializedRef.current) return;
             isFirebaseInitializedRef.current = true;
@@ -316,7 +317,7 @@ const App = () => {
             const visionResponse = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(visionPayload) });
             if (!visionResponse.ok) {
                  const errorData = await visionResponse.json();
-                 console.error("Vision API Error Response:", errorData); // Log detailed error
+                 console.error("Vision API Error Response:", errorData);
                  throw new Error(`Text extraction failed: ${errorData.error?.message || 'Check API key and billing.'}`);
             }
             const visionResult = await visionResponse.json();
@@ -369,44 +370,274 @@ const App = () => {
         }
     };
     
+    // --- Styles Object for a Guaranteed Professional Look ---
+    const styles = {
+        appContainer: {
+            padding: '2rem',
+            color: '#333'
+        },
+        mainCard: {
+            backgroundColor: '#ffffff',
+            borderRadius: '24px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            padding: '2.5rem',
+            maxWidth: '1200px',
+            margin: 'auto',
+            border: '1px solid #e2e8f0'
+        },
+        header: {
+            textAlign: 'center',
+            marginBottom: '2.5rem',
+        },
+        title: {
+            fontSize: '2.5rem',
+            fontWeight: '800',
+            color: '#1a202c',
+            letterSpacing: '-0.025em'
+        },
+        subtitle: {
+            fontSize: '1.1rem',
+            color: '#718096',
+            marginTop: '0.5rem',
+            maxWidth: '600px',
+            margin: '0.5rem auto 0 auto'
+        },
+        gridContainer: {
+            display: 'grid',
+            gridTemplateColumns: '1fr', // Single column by default
+            gap: '2rem',
+        },
+        // Media query for larger screens will be handled in a style tag for simplicity
+        column: {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.5rem',
+        },
+        stepCard: {
+            backgroundColor: '#f8fafc',
+            padding: '1.5rem',
+            borderRadius: '16px',
+            border: '1px solid #e8edf3',
+        },
+        stepTitle: {
+            fontSize: '1.25rem',
+            fontWeight: '700',
+            color: '#334155',
+            marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+        },
+        stepNumber: {
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            borderRadius: '50%',
+            width: '2rem',
+            height: '2rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: '0.75rem',
+            fontWeight: 'bold',
+            flexShrink: 0
+        },
+        uploadBox: {
+            textAlign: 'center',
+            padding: '2rem',
+            border: '2px dashed #cbd5e0',
+            borderRadius: '12px',
+            cursor: 'pointer',
+            backgroundColor: '#ffffff',
+            transition: 'background-color 0.2s, border-color 0.2s',
+        },
+        button: {
+            width: '100%',
+            padding: '0.8rem 1rem',
+            backgroundImage: 'linear-gradient(to right, #3b82f6, #2563eb)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontWeight: '600',
+            fontSize: '1rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            boxShadow: '0 4px 14px 0 rgba(0, 118, 255, 0.39)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem',
+        },
+        buttonTranslate: {
+            backgroundImage: 'linear-gradient(to right, #10b981, #059669)',
+            paddingTop: '1rem',
+            paddingBottom: '1rem',
+            fontSize: '1.1rem',
+            boxShadow: '0 4px 14px 0 rgba(16, 185, 129, 0.39)',
+        },
+        selectInput: {
+            width: '100%',
+            padding: '0.8rem',
+            border: '1px solid #cbd5e0',
+            borderRadius: '8px',
+            backgroundColor: 'white',
+            fontSize: '1rem',
+        },
+        imageDisplayBox: {
+            minHeight: '300px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#f8fafc',
+            borderRadius: '16px',
+            padding: '1rem',
+            position: 'relative',
+            border: '1px solid #e8edf3',
+        },
+        imageElement: {
+            maxWidth: '100%',
+            maxHeight: '280px',
+            objectFit: 'contain',
+            borderRadius: '8px',
+        },
+        clearButton: {
+            position: 'absolute',
+            top: '0.75rem',
+            right: '0.75rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            border: '1px solid #e2e8f0',
+            borderRadius: '50%',
+            width: '2rem',
+            height: '2rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            cursor: 'pointer',
+        },
+        resultsCard: {
+            backgroundColor: 'white',
+            padding: '1.5rem',
+            borderRadius: '16px',
+            border: '1px solid #e8edf3',
+        },
+        resultsHeading: {
+            fontWeight: 600,
+            marginBottom: '0.5rem',
+            color: '#4a5568',
+        },
+        resultsTextBox: {
+            backgroundColor: '#f8fafc',
+            padding: '0.75rem 1rem',
+            borderRadius: '8px',
+            fontFamily: `'Fira Code', 'Courier New', monospace`,
+            whiteSpace: 'pre-wrap',
+            color: '#1e293b',
+            border: '1px solid #e8edf3',
+        },
+        translatedTextBox: {
+            fontFamily: `'Segoe UI', sans-serif`,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'start',
+            gap: '1rem',
+        },
+        actionButtons: {
+             display: 'flex',
+             gap: '0.5rem',
+             flexShrink: 0,
+        },
+        historyContainer: {
+            marginTop: '2.5rem',
+            padding: '1.5rem',
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            border: '1px solid #e2e8f0',
+        },
+        historyList: {
+            maxHeight: '400px',
+            overflowY: 'auto',
+            paddingRight: '0.5rem',
+        },
+        historyItem: {
+            backgroundColor: '#f8fafc',
+            padding: '1rem',
+            marginBottom: '0.75rem',
+            borderRadius: '12px',
+            border: '1px solid #e8edf3',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem',
+        },
+        historyThumbnail: {
+            width: '4rem',
+            height: '4rem',
+            objectFit: 'cover',
+            borderRadius: '8px',
+            flexShrink: 0,
+        },
+        modalOverlay: {
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+        },
+        modalContent: {
+            backgroundColor: 'white',
+            padding: '2rem',
+            borderRadius: '16px',
+            width: '100%',
+            maxWidth: '500px',
+        },
+    };
+    
     if (!authReady) {
         return (
-            <div className="app-container">
-                <p>Initializing Secure Connection...</p>
+            <div style={styles.appContainer}>
+                <div style={{textAlign: 'center'}}>Initializing Secure Connection...</div>
             </div>
         );
     }
     
     return (
-        <div className="app-container">
-             <div className="main-card">
-                <header className="header">
-                    {/* --- Title and Subtitle Updated As Per Your Request --- */}
-                    <h1 className="title">Multilingual Image to Text Translator Web App</h1>
-                    <p className="subtitle">Translate Text from Images, Posters, and, Banners with a Image Upload</p>
+        <div style={styles.appContainer}>
+             {/* Style tag for responsive grid layout */}
+             <style>{`
+                @media (min-width: 768px) {
+                    .grid-container {
+                        grid-template-columns: repeat(2, 1fr);
+                    }
+                }
+             `}</style>
+             <div style={styles.mainCard}>
+                <header style={styles.header}>
+                    <h1 style={styles.title}>Multilingual Image Text Translator Web App</h1>
+                    <p style={styles.subtitle}>Translate Text from Images, Posters, and Banners with an Image Upload</p>
                 </header>
                 
-                <div className="grid-container">
+                <div className="grid-container" style={styles.gridContainer}>
                     {/* Left Column */}
-                    <div className="column">
-                        <div className="step-card">
-                            <h2 className="step-title"><span className="step-number">1</span> Choose Image Source</h2>
+                    <div style={styles.column}>
+                        <div style={styles.stepCard}>
+                            <h2 style={styles.stepTitle}><span style={styles.stepNumber}>1</span> Choose Image Source</h2>
                             {isCameraActive ? (
-                                <div>
-                                    <video ref={videoRef} style={{ width: '100%', borderRadius: '8px', marginBottom: '1rem' }} autoPlay playsInline></video>
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+                                    <video ref={videoRef} style={{ width: '100%', borderRadius: '8px' }} autoPlay playsInline></video>
                                     <div style={{ display: 'flex', gap: '1rem' }}>
-                                        <button onClick={captureImage} className="button">Capture</button>
-                                        <button onClick={stopCamera} className="button" style={{ backgroundColor: '#718096'}}>Cancel</button>
+                                        <button onClick={captureImage} style={styles.button}>Capture</button>
+                                        <button onClick={stopCamera} style={{...styles.button, backgroundImage: 'linear-gradient(to right, #a0aec0, #718096)', boxShadow: 'none' }}>Cancel</button>
                                     </div>
                                 </div>
                             ) : (
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                                    <label htmlFor="image-upload" className="upload-box">
-                                        <span className="upload-box-text">Upload a file</span> or drag and drop
+                                    <label htmlFor="image-upload" style={styles.uploadBox} onMouseOver={e => e.currentTarget.style.backgroundColor='#eef2ff'} onMouseOut={e => e.currentTarget.style.backgroundColor='#ffffff'}>
+                                        <span style={{ color: '#3b82f6', fontWeight: 600 }}>Upload a file</span> or drag and drop
                                     </label>
                                     <input type="file" id="image-upload" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
                                     <p style={{color: '#a0aec0'}}>- OR -</p>
-                                    <button onClick={openCamera} className="button">
+                                    <button onClick={openCamera} style={styles.button}>
                                         <Icon path="M10 12a2 2 0 100-4 2 2 0 000 4z M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" />
                                         Use Camera
                                     </button>
@@ -415,53 +646,53 @@ const App = () => {
                              <canvas ref={canvasRef} style={{display: 'none'}}></canvas>
                         </div>
 
-                        <div className="step-card">
-                            <h2 className="step-title"><span className="step-number">2</span> Select Language</h2>
-                            <select id="target-language" value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)} className="select-input">
+                        <div style={styles.stepCard}>
+                            <h2 style={styles.stepTitle}><span style={styles.stepNumber}>2</span> Select Language</h2>
+                            <select id="target-language" value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)} style={styles.selectInput}>
                                 {languages.map((lang) => <option key={lang} value={lang}>{lang}</option>)}
                             </select>
                         </div>
 
-                        <div className="step-card">
-                            <h2 className="step-title"><span className="step-number">3</span> Get Translation</h2>
-                            <button onClick={handleTranslate} disabled={isLoading || !selectedImage} className="button button-translate">
+                        <div style={styles.stepCard}>
+                            <h2 style={styles.stepTitle}><span style={styles.stepNumber}>3</span> Get Translation</h2>
+                            <button onClick={handleTranslate} disabled={isLoading || !selectedImage} style={{...styles.button, ...styles.buttonTranslate, ...(isLoading || !selectedImage ? {backgroundImage: 'none', backgroundColor: '#a0aec0', boxShadow: 'none', cursor: 'not-allowed'} : {})}}>
                                 {isLoading ? 'Translating...' : 'Translate Signboard Text'}
                             </button>
                         </div>
                     </div>
 
                     {/* Right Column */}
-                     <div className="column">
-                        <div className="image-display-box">
+                     <div style={styles.column}>
+                        <div style={styles.imageDisplayBox}>
                             {selectedImage ? (
                                 <>
-                                    <img src={overlayedImage || `data:image/jpeg;base64,${selectedImage}`} alt="Source for translation" className="image-element" />
-                                    <button onClick={handleClearImage} className="clear-button" title="Clear Image">
+                                    <img src={overlayedImage || `data:image/jpeg;base64,${selectedImage}`} alt="Source for translation" style={styles.imageElement} />
+                                    <button onClick={handleClearImage} style={styles.clearButton} title="Clear Image">
                                         <Icon path="M6 18L18 6M6 6l12 12" className="w-4 h-4" style={{color: '#4a5568'}}/>
                                     </button>
                                 </>
                             ) : (
                                <div style={{ textAlign: 'center', color: '#a0aec0' }}>
-                                   <Icon path="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6l2-2m-2 2l-2-2m0 0l-2 2m2-2l2 2" className="w-16 h-16 mx-auto mb-4"/>
+                                   <Icon path="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6l2-2m-2 2l-2-2m0 0l-2 2m2-2l2 2" className="w-16 h-16" style={{margin: '0 auto 1rem auto'}}/>
                                    <p>Your image will appear here</p>
                                </div>
                             )}
                         </div>
                         
                         {(extractedText || translatedText || error) && (
-                            <div className="step-card results-card">
-                                {error && <div style={{backgroundColor: '#fed7d7', border: '1px solid #f56565', color: '#c53030', padding: '1rem', borderRadius: '8px', marginBottom: '1rem'}}>{error}</div>}
+                            <div style={styles.resultsCard}>
+                                {error && <div style={{backgroundColor: '#fff5f5', border: '1px solid #f56565', color: '#c53030', padding: '1rem', borderRadius: '8px', marginBottom: '1rem'}}>{error}</div>}
                                 
                                 {extractedText && <div style={{marginBottom: '1rem'}}>
-                                    <h3 className="results-heading">Extracted Text</h3>
-                                    <p className="results-text-box">{extractedText}</p>
+                                    <h3 style={styles.resultsHeading}>Extracted Text</h3>
+                                    <p style={styles.resultsTextBox}>{extractedText}</p>
                                 </div>}
                                 
                                 {translatedText && <div style={{marginBottom: '1rem'}}>
-                                    <h3 className="results-heading">Translated Text ({targetLanguage})</h3>
-                                    <div className="results-text-box translated">
+                                    <h3 style={styles.resultsHeading}>Translated Text ({targetLanguage})</h3>
+                                    <div style={{...styles.resultsTextBox, ...styles.translatedTextBox}}>
                                         <span>{translatedText}</span>
-                                        <div className="action-buttons" style={{display: 'flex', gap: '0.5rem'}}>
+                                        <div style={styles.actionButtons}>
                                             <button onClick={() => handleSpeak(translatedText)} title="Speak"><Icon path="M4.055 6.257A1 1 0 003 7.172v5.656a1 1 0 001.055.915 8.001 8.001 0 010-7.488zM5 6.5A1.5 1.5 0 016.5 5h1A1.5 1.5 0 019 6.5v7a1.5 1.5 0 01-1.5 1.5h-1A1.5 1.5 0 015 13.5v-7zm6.5-1.5a.5.5 0 000 1h1a.5.5 0 000-1h-1zm0 2a.5.5 0 000 1h3a.5.5 0 000-1h-3zm0 2a.5.5 0 000 1h3a.5.5 0 000-1h-3zm0 2a.5.5 0 000 1h1a.5.5 0 000-1h-1z"/></button>
                                             <button onClick={() => handleCopyTranslatedText(translatedText)} title="Copy"><Icon path="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9zM4 3a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H4z"/></button>
                                         </div>
@@ -469,28 +700,28 @@ const App = () => {
                                 </div>}
 
                                 {contextualInfo && <div>
-                                    <h3 className="results-heading">Contextual Info</h3>
-                                    <p className="results-text-box translated">{contextualInfo}</p>
+                                    <h3 style={styles.resultsHeading}>Contextual Info</h3>
+                                    <p style={{...styles.resultsTextBox, ...styles.translatedTextBox}}>{contextualInfo}</p>
                                 </div>}
                             </div>
                         )}
                     </div>
                 </div>
                 
-                 <div className="history-container">
-                    <h2 className="step-title">Translation History</h2>
-                    <div className="history-list">
+                 <div style={styles.historyContainer}>
+                    <h2 style={styles.stepTitle}>Translation History</h2>
+                    <div style={styles.historyList}>
                         {history.length > 0 ? history.map((entry) => (
-                            <div key={entry.id} className={`history-item ${entry.isFavorite ? 'favorite' : ''}`}>
-                                <img src={`data:image/jpeg;base64,${entry.originalImageThumbnail}`} alt="Thumbnail" className="history-thumbnail" />
+                            <div key={entry.id} style={{...styles.historyItem, ...(entry.isFavorite ? {borderColor: '#f6e05e', backgroundColor: '#fffbef'} : {})}}>
+                                <img src={`data:image/jpeg;base64,${entry.originalImageThumbnail}`} alt="Thumbnail" style={styles.historyThumbnail} />
                                 <div style={{flexGrow: 1}}>
                                     <p style={{fontFamily: 'monospace', fontSize: '0.9rem'}}><strong>Original:</strong> {entry.originalText}</p>
                                     <p style={{fontSize: '0.9rem'}}><strong>Translated:</strong> {entry.translatedText}</p>
                                     {entry.notes && <p style={{fontSize: '0.8rem', fontStyle: 'italic', marginTop: '0.25rem', color: '#718096'}}><strong>Note:</strong> {entry.notes}</p>}
                                 </div>
-                                <div className="history-actions" style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
-                                    <button onClick={() => toggleFavorite(entry.id, entry.isFavorite)} className={`favorite-btn ${entry.isFavorite ? 'active' : ''}`} title="Favorite"><Icon path="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.28 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" className="w-4 h-4" /></button>
-                                    <button onClick={() => openNoteModal(entry.id, entry.notes)} title="Add/Edit Note"><Icon path="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 17a1 1 0 01-1-1v-6a1 1 0 112 0v6a1 1 0 01-1 1z" className="w-4 h-4" /></button>
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
+                                    <button onClick={() => toggleFavorite(entry.id, entry.isFavorite)} style={{backgroundColor: entry.isFavorite ? '#f6e05e' : '#edf2f7', borderRadius: '50%', padding: '0.5rem', border: '1px solid #e2e8f0', cursor: 'pointer'}} title="Favorite"><Icon path="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.28 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" className="w-4 h-4" /></button>
+                                    <button onClick={() => openNoteModal(entry.id, entry.notes)} style={{backgroundColor: '#edf2f7', borderRadius: '50%', padding: '0.5rem', border: '1px solid #e2e8f0', cursor: 'pointer'}} title="Add/Edit Note"><Icon path="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 17a1 1 0 01-1-1v-6a1 1 0 112 0v6a1 1 0 01-1 1z" className="w-4 h-4" /></button>
                                 </div>
                             </div>
                         )) : <p style={{color: '#a0aec0', fontStyle: 'italic', textAlign: 'center', padding: '1rem'}}>No history yet.</p>}
@@ -499,13 +730,13 @@ const App = () => {
              </div>
 
              {isNoteModalOpen && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
+                <div style={styles.modalOverlay}>
+                    <div style={styles.modalContent}>
                         <h3 style={{fontSize: '1.25rem', fontWeight: 600, marginBottom: '1rem'}}>Add/Edit Note</h3>
                         <textarea style={{width: '100%', minHeight: '120px', padding: '0.75rem', border: '1px solid #cbd5e0', borderRadius: '8px'}} value={currentNote} onChange={(e) => setCurrentNote(e.target.value)} placeholder="Type your note here..."></textarea>
                         <div style={{display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem'}}>
-                            <button onClick={() => setIsNoteModalOpen(false)} className="button" style={{width: 'auto', backgroundColor: '#a0aec0'}}>Cancel</button>
-                            <button onClick={saveNote} className="button" style={{width: 'auto'}}>Save Note</button>
+                            <button onClick={() => setIsNoteModalOpen(false)} style={{...styles.button, width: 'auto', backgroundImage: 'none', backgroundColor: '#a0aec0', boxShadow: 'none', padding: '0.5rem 1rem'}}>Cancel</button>
+                            <button onClick={saveNote} style={{...styles.button, width: 'auto', padding: '0.5rem 1rem'}}>Save Note</button>
                         </div>
                     </div>
                 </div>
