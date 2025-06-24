@@ -3,6 +3,13 @@ import { initializeApp } from "firebase/app";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, collection, addDoc, query, onSnapshot, serverTimestamp, doc, updateDoc } from "firebase/firestore";
 
+// --- Helper component for icons ---
+const Icon = ({ path, className = "w-5 h-5" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d={path} clipRule="evenodd" />
+    </svg>
+);
+
 const App = () => {
     // State for image handling
     const [selectedImage, setSelectedImage] = useState(null);
@@ -66,25 +73,20 @@ const App = () => {
 
                 setFirestoreDb(dbInstance);
                 setFirebaseAuth(authInstance);
-                console.log("Firebase initialized.");
 
                 onAuthStateChanged(authInstance, async (user) => {
                     if (!user) {
                         try {
                             await signInAnonymously(authInstance);
-                            console.log("Signed in anonymously.");
                         } catch (authError) {
-                            console.error("Firebase Auth Error:", authError);
                             setError(`Authentication failed: ${authError.message}`);
                         }
                     } else {
-                        console.log("User authenticated:", user.uid);
                         setAuthReady(true);
                     }
                 });
 
             } catch (err) {
-                console.error("Failed to initialize Firebase:", err);
                 setError(`Failed to load Firebase services. Did you paste your config correctly? Error: ${err.message}`);
             }
         };
@@ -114,7 +116,6 @@ const App = () => {
                 historyData.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
                 setHistory(historyData);
             }, (error) => {
-                console.error("Error listening to translation history:", error);
                 setError(`Failed to load history: ${error.message}`);
             });
 
@@ -364,181 +365,317 @@ const App = () => {
         }
     };
     
+    // --- UI Revamped with Inline Styles for a Clean, Professional Look ---
+    const styles = {
+        appContainer: {
+            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+            backgroundColor: '#f4f7f6',
+            minHeight: '100vh',
+            padding: '2rem',
+            color: '#333'
+        },
+        mainCard: {
+            backgroundColor: '#ffffff',
+            borderRadius: '24px',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+            padding: '2rem',
+            maxWidth: '1200px',
+            margin: 'auto',
+            border: '1px solid #e2e8f0'
+        },
+        header: {
+            textAlign: 'center',
+            marginBottom: '2.5rem',
+        },
+        title: {
+            fontSize: '2.5rem',
+            fontWeight: 'bold',
+            color: '#1a202c',
+        },
+        subtitle: {
+            fontSize: '1.1rem',
+            color: '#718096',
+            marginTop: '0.5rem'
+        },
+        gridContainer: {
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '2rem',
+        },
+        leftColumn: {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.5rem',
+        },
+        rightColumn: {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.5rem',
+        },
+        stepCard: {
+            backgroundColor: '#fdfdff',
+            padding: '1.5rem',
+            borderRadius: '16px',
+            border: '1px solid #e2e8f0',
+        },
+        stepTitle: {
+            fontSize: '1.25rem',
+            fontWeight: '600',
+            color: '#2d3748',
+            marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+        },
+        stepNumber: {
+            backgroundColor: '#4299e1',
+            color: 'white',
+            borderRadius: '50%',
+            width: '2rem',
+            height: '2rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: '0.75rem',
+            fontWeight: 'bold',
+        },
+        uploadBox: {
+            textAlign: 'center',
+            padding: '2rem',
+            border: '2px dashed #cbd5e0',
+            borderRadius: '12px',
+            cursor: 'pointer',
+            backgroundColor: '#f7fafc',
+            transition: 'background-color 0.2s ease-in-out',
+        },
+        imageDisplayBox: {
+            minHeight: '300px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#f7fafc',
+            borderRadius: '16px',
+            padding: '1rem',
+            position: 'relative',
+        },
+        imageElement: {
+            maxWidth: '100%',
+            maxHeight: '280px', // Constrains the image size
+            objectFit: 'contain',
+            borderRadius: '8px',
+        },
+        clearButton: {
+            position: 'absolute',
+            top: '1rem',
+            right: '1rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            border: '1px solid #e2e8f0',
+            borderRadius: '50%',
+            width: '2rem',
+            height: '2rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            cursor: 'pointer'
+        },
+        button: {
+            width: '100%',
+            padding: '0.75rem',
+            backgroundColor: '#3182ce',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem'
+        },
+        selectInput: {
+            width: '100%',
+            padding: '0.75rem',
+            border: '1px solid #cbd5e0',
+            borderRadius: '8px',
+            backgroundColor: 'white',
+            fontSize: '1rem',
+        },
+        historyContainer: {
+            marginTop: '2rem',
+            padding: '1.5rem',
+            backgroundColor: '#fdfdff',
+            borderRadius: '16px',
+            border: '1px solid #e2e8f0'
+        },
+        historyItem: {
+            backgroundColor: 'white',
+            padding: '1rem',
+            marginBottom: '0.75rem',
+            borderRadius: '12px',
+            border: '1px solid #e2e8f0',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem'
+        },
+        historyThumbnail: {
+            width: '4rem',
+            height: '4rem',
+            objectFit: 'cover',
+            borderRadius: '8px',
+            flexShrink: 0
+        },
+        modalOverlay: {
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        modalContent: {
+            backgroundColor: 'white',
+            padding: '2rem',
+            borderRadius: '16px',
+            width: '100%',
+            maxWidth: '500px',
+        },
+    };
+    
     if (!authReady) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-900 text-gray-300 font-sans">
-                <svg className="animate-spin h-8 w-8 mr-3 text-blue-500" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Initializing Secure Connection...
+            <div style={styles.appContainer}>
+                <p>Initializing Secure Connection...</p>
             </div>
         );
     }
     
-    // --- UI Revamped with Tailwind CSS for a Modern Look ---
     return (
-        <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4 sm:p-6 font-sans">
-             <div className="bg-gray-800 bg-opacity-60 backdrop-blur-lg p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-4xl border border-gray-700">
-                
-                {/* Header */}
-                <header className="text-center mb-8">
-                    <h1 className="text-4xl sm:text-5xl font-extrabold mb-2 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-300">
-                        Signboard Translator
-                    </h1>
-                    <p className="text-gray-400 text-lg">Translate text from images with a single click.</p>
+        <div style={styles.appContainer}>
+             <div style={styles.mainCard}>
+                <header style={styles.header}>
+                    <h1 style={styles.title}>Signboard Translator</h1>
+                    <p style={styles.subtitle}>Translate text from images with a single click.</p>
                 </header>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Left Column: Input and Controls */}
-                    <div className="flex flex-col space-y-6">
-                        {/* Step 1: Image Source */}
-                        <div className="bg-gray-700/50 p-6 rounded-2xl border border-gray-600">
-                            <h2 className="text-xl font-bold text-gray-200 mb-4 flex items-center">
-                                <span className="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3 font-bold text-lg">1</span>
-                                Choose Image Source
-                            </h2>
+                
+                <div style={styles.gridContainer}>
+                    {/* Left Column */}
+                    <div style={styles.leftColumn}>
+                        <div style={styles.stepCard}>
+                            <h2 style={styles.stepTitle}><span style={styles.stepNumber}>1</span> Choose Image Source</h2>
                             {isCameraActive ? (
-                                <div className="flex flex-col items-center space-y-4">
-                                    <video ref={videoRef} className="w-full h-auto max-h-72 object-cover rounded-lg shadow-lg border-2 border-gray-600" autoPlay playsInline></video>
-                                    <div className="flex w-full space-x-4">
-                                        <button onClick={captureImage} className="w-full py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-lg shadow-md hover:scale-105 transition-transform duration-200 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2H4zm10 5a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" /></svg>
-                                            Capture
-                                        </button>
-                                        <button onClick={stopCamera} className="w-full py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white font-bold rounded-lg shadow-md hover:scale-105 transition-transform duration-200">Cancel</button>
+                                <div>
+                                    <video ref={videoRef} style={{ width: '100%', borderRadius: '8px', marginBottom: '1rem' }} autoPlay playsInline></video>
+                                    <div style={{ display: 'flex', gap: '1rem' }}>
+                                        <button onClick={captureImage} style={styles.button}>Capture</button>
+                                        <button onClick={stopCamera} style={{...styles.button, backgroundColor: '#718096'}}>Cancel</button>
                                     </div>
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-center space-y-4">
-                                    <label htmlFor="image-upload" className="w-full text-center py-4 px-6 border-2 border-dashed border-gray-500 rounded-lg cursor-pointer hover:bg-gray-700 hover:border-gray-400 transition-colors duration-200">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mx-auto mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                                        <span className="text-blue-400 font-semibold">Upload a file</span>
-                                        <span className="text-gray-400"> or drag and drop</span>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                                    <label htmlFor="image-upload" style={styles.uploadBox}>
+                                        <span style={{ color: '#4299e1', fontWeight: '600' }}>Upload a file</span> or drag and drop
                                     </label>
-                                    <input type="file" id="image-upload" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                                    <p className="text-gray-500">- OR -</p>
-                                    <button onClick={openCamera} className="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold rounded-lg shadow-md hover:scale-105 transition-transform duration-200 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" /></svg>
-                                        Use Camera
-                                    </button>
+                                    <input type="file" id="image-upload" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
+                                    <p style={{color: '#a0aec0'}}>- OR -</p>
+                                    <button onClick={openCamera} style={styles.button}>Use Camera</button>
                                 </div>
                             )}
-                            <canvas ref={canvasRef} className="hidden"></canvas>
+                             <canvas ref={canvasRef} style={{display: 'none'}}></canvas>
                         </div>
 
-                        {/* Step 2: Language Selection */}
-                         <div className="bg-gray-700/50 p-6 rounded-2xl border border-gray-600">
-                            <h2 className="text-xl font-bold text-gray-200 mb-4 flex items-center">
-                                <span className="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3 font-bold text-lg">2</span>
-                                Select Language
-                            </h2>
-                            <select id="target-language" value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)} className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <div style={styles.stepCard}>
+                            <h2 style={styles.stepTitle}><span style={styles.stepNumber}>2</span> Select Language</h2>
+                            <select id="target-language" value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)} style={styles.selectInput}>
                                 {languages.map((lang) => <option key={lang} value={lang}>{lang}</option>)}
                             </select>
                         </div>
-                        
-                        {/* Step 3: Translate Button */}
-                         <div className="bg-gray-700/50 p-6 rounded-2xl border border-gray-600">
-                             <h2 className="text-xl font-bold text-gray-200 mb-4 flex items-center">
-                                <span className="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3 font-bold text-lg">3</span>
-                                Get Translation
-                            </h2>
-                            <button onClick={handleTranslate} disabled={isLoading || !selectedImage} className="w-full py-4 bg-gradient-to-r from-teal-500 to-cyan-500 text-white font-extrabold text-lg rounded-lg shadow-lg hover:scale-105 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-center">
-                                {isLoading ? (
-                                    <>
-                                        <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                        Translating...
-                                    </>
-                                ) : 'Translate Signboard Text'}
+
+                        <div style={styles.stepCard}>
+                            <h2 style={styles.stepTitle}><span style={styles.stepNumber}>3</span> Get Translation</h2>
+                            <button onClick={handleTranslate} disabled={isLoading || !selectedImage} style={{...styles.button, backgroundColor: isLoading || !selectedImage ? '#a0aec0' : '#2c7a7b', padding: '1rem', fontSize: '1.1rem'}}>
+                                {isLoading ? 'Translating...' : 'Translate Signboard Text'}
                             </button>
                         </div>
                     </div>
 
-                    {/* Right Column: Image and Results */}
-                    <div className="flex flex-col space-y-6">
-                        {/* Image Display */}
-                        <div className="bg-gray-700/50 p-6 rounded-2xl border border-gray-600 min-h-[300px] flex flex-col justify-center items-center">
-                             {selectedImage ? (
-                                <div className="w-full relative">
-                                    <img src={overlayedImage || `data:image/jpeg;base64,${selectedImage}`} alt="Source for translation" className="w-full h-auto max-h-64 object-contain rounded-lg shadow-2xl" />
-                                    <button onClick={handleClearImage} className="absolute -top-3 -right-3 bg-red-600 text-white rounded-full h-8 w-8 flex items-center justify-center shadow-lg hover:bg-red-700 hover:scale-110 transition-transform">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    {/* Right Column */}
+                     <div style={styles.rightColumn}>
+                        <div style={styles.imageDisplayBox}>
+                            {selectedImage ? (
+                                <>
+                                    <img src={overlayedImage || `data:image/jpeg;base64,${selectedImage}`} alt="Source for translation" style={styles.imageElement} />
+                                    <button onClick={handleClearImage} style={styles.clearButton} title="Clear Image">
+                                        <Icon path="M6 18L18 6M6 6l12 12" className="w-4 h-4 text-gray-600"/>
                                     </button>
-                                </div>
+                                </>
                             ) : (
-                               <div className="text-center text-gray-500">
-                                   <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6l2-2m-2 2l-2-2m0 0l-2 2m2-2l2 2" /></svg>
+                               <div style={{ textAlign: 'center', color: '#a0aec0' }}>
+                                   <Icon path="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6l2-2m-2 2l-2-2m0 0l-2 2m2-2l2 2" className="w-16 h-16 mx-auto mb-4"/>
                                    <p>Your image will appear here</p>
                                </div>
                             )}
                         </div>
                         
-                        {/* Results Area */}
                         {(extractedText || translatedText || error) && (
-                            <div className="bg-gray-700/50 p-6 rounded-2xl border border-gray-600 flex-grow">
-                                {error && <div className="bg-red-500/30 border border-red-500 text-red-300 px-4 py-3 rounded-lg mb-4">{error}</div>}
+                            <div style={styles.stepCard}>
+                                {error && <div style={{backgroundColor: '#fed7d7', border: '1px solid #f56565', color: '#c53030', padding: '1rem', borderRadius: '8px', marginBottom: '1rem'}}>{error}</div>}
                                 
-                                {extractedText && <div className="mb-4">
-                                    <h3 className="text-lg font-bold text-gray-300 mb-2">Extracted Text</h3>
-                                    <p className="bg-gray-900/70 p-3 rounded-lg text-gray-300 font-mono text-sm whitespace-pre-wrap">{extractedText}</p>
+                                {extractedText && <div style={{marginBottom: '1rem'}}>
+                                    <h3 style={{fontWeight: '600', marginBottom: '0.5rem'}}>Extracted Text</h3>
+                                    <p style={{backgroundColor: '#edf2f7', padding: '0.75rem', borderRadius: '8px', fontFamily: 'monospace', whiteSpace: 'pre-wrap', color: '#2d3748'}}>{extractedText}</p>
                                 </div>}
                                 
-                                {translatedText && <div className="mb-4">
-                                    <h3 className="text-lg font-bold text-gray-300 mb-2">Translated Text ({targetLanguage})</h3>
-                                    <div className="bg-gray-900/70 p-3 rounded-lg text-gray-200 text-sm whitespace-pre-wrap flex justify-between items-start">
+                                {translatedText && <div style={{marginBottom: '1rem'}}>
+                                    <h3 style={{fontWeight: '600', marginBottom: '0.5rem'}}>Translated Text ({targetLanguage})</h3>
+                                    <div style={{backgroundColor: '#edf2f7', padding: '0.75rem', borderRadius: '8px', whiteSpace: 'pre-wrap', color: '#2d3748', display:'flex', justifyContent: 'space-between', alignItems: 'start'}}>
                                         <span>{translatedText}</span>
-                                        <div className="flex space-x-2">
-                                            <button onClick={() => handleSpeak(translatedText)} title="Speak" className="text-gray-400 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M4.055 6.257A1 1 0 003 7.172v5.656a1 1 0 001.055.915 8.001 8.001 0 010-7.488z" /><path fillRule="evenodd" d="M5 6.5A1.5 1.5 0 016.5 5h1A1.5 1.5 0 019 6.5v7a1.5 1.5 0 01-1.5 1.5h-1A1.5 1.5 0 015 13.5v-7zm6.5-1.5a.5.5 0 000 1h1a.5.5 0 000-1h-1zm0 2a.5.5 0 000 1h3a.5.5 0 000-1h-3zm0 2a.5.5 0 000 1h3a.5.5 0 000-1h-3zm0 2a.5.5 0 000 1h1a.5.5 0 000-1h-1z" clipRule="evenodd" /></svg></button>
-                                            <button onClick={() => handleCopyTranslatedText(translatedText)} title="Copy" className="text-gray-400 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z" /><path d="M4 3a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H4z" /></svg></button>
+                                        <div style={{display: 'flex', gap: '0.5rem', flexShrink: 0}}>
+                                            <button onClick={() => handleSpeak(translatedText)} title="Speak"><Icon path="M4.055 6.257A1 1 0 003 7.172v5.656a1 1 0 001.055.915 8.001 8.001 0 010-7.488zM5 6.5A1.5 1.5 0 016.5 5h1A1.5 1.5 0 019 6.5v7a1.5 1.5 0 01-1.5 1.5h-1A1.5 1.5 0 015 13.5v-7zm6.5-1.5a.5.5 0 000 1h1a.5.5 0 000-1h-1zm0 2a.5.5 0 000 1h3a.5.5 0 000-1h-3zm0 2a.5.5 0 000 1h3a.5.5 0 000-1h-3zm0 2a.5.5 0 000 1h1a.5.5 0 000-1h-1z"/></button>
+                                            <button onClick={() => handleCopyTranslatedText(translatedText)} title="Copy"><Icon path="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9zM4 3a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H4z"/></button>
                                         </div>
                                     </div>
                                 </div>}
 
                                 {contextualInfo && <div>
-                                    <h3 className="text-lg font-bold text-gray-300 mb-2">Contextual Info</h3>
-                                    <p className="bg-gray-900/70 p-3 rounded-lg text-gray-300 text-sm whitespace-pre-wrap">{contextualInfo}</p>
+                                    <h3 style={{fontWeight: '600', marginBottom: '0.5rem'}}>Contextual Info</h3>
+                                    <p style={{backgroundColor: '#edf2f7', padding: '0.75rem', borderRadius: '8px', color: '#2d3748', whiteSpace: 'pre-wrap'}}>{contextualInfo}</p>
                                 </div>}
                             </div>
                         )}
                     </div>
                 </div>
                 
-                 {/* Translation History Section */}
-                <div className="mt-8 bg-gray-700/50 p-6 rounded-2xl border border-gray-600">
-                    <h2 className="text-xl font-bold text-gray-200 mb-4">Translation History</h2>
-                    <div className="max-h-64 overflow-y-auto pr-2">
+                 <div style={styles.historyContainer}>
+                    <h2 style={{...styles.stepTitle, marginBottom: '1rem'}}>Translation History</h2>
+                    <div style={{maxHeight: '300px', overflowY: 'auto', paddingRight: '0.5rem'}}>
                         {history.length > 0 ? history.map((entry) => (
-                            <div key={entry.id} className={`p-4 mb-3 rounded-xl bg-gray-800/60 shadow-lg flex items-center space-x-4 transition-all duration-200 ${entry.isFavorite ? 'ring-2 ring-yellow-500' : 'border border-gray-700'}`}>
-                                <img src={`data:image/jpeg;base64,${entry.originalImageThumbnail}`} alt="Thumbnail" className="w-16 h-16 object-cover rounded-lg flex-shrink-0" />
-                                <div className="flex-grow text-sm text-gray-300">
-                                    <p className="font-mono"><strong className="font-sans font-semibold text-gray-400">Original:</strong> {entry.originalText}</p>
-                                    <p><strong className="font-semibold text-gray-400">Translated:</strong> {entry.translatedText}</p>
-                                    {entry.notes && <p className="text-xs italic mt-1 text-gray-400"><strong>Note:</strong> {entry.notes}</p>}
+                            <div key={entry.id} style={{...styles.historyItem, border: entry.isFavorite ? '2px solid #ecc94b' : '1px solid #e2e8f0'}}>
+                                <img src={`data:image/jpeg;base64,${entry.originalImageThumbnail}`} alt="Thumbnail" style={styles.historyThumbnail} />
+                                <div style={{flexGrow: 1}}>
+                                    <p style={{fontFamily: 'monospace', fontSize: '0.9rem'}}><strong>Original:</strong> {entry.originalText}</p>
+                                    <p style={{fontSize: '0.9rem'}}><strong>Translated:</strong> {entry.translatedText}</p>
+                                    {entry.notes && <p style={{fontSize: '0.8rem', fontStyle: 'italic', marginTop: '0.25rem', color: '#718096'}}><strong>Note:</strong> {entry.notes}</p>}
                                 </div>
-                                <div className="flex flex-col space-y-2">
-                                    <button onClick={() => toggleFavorite(entry.id, entry.isFavorite)} className={`p-2 rounded-full transition-colors ${entry.isFavorite ? 'bg-yellow-500 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'}`} title={entry.isFavorite ? "Unfavorite" : "Favorite"}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.28 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                                    </button>
-                                    <button onClick={() => openNoteModal(entry.id, entry.notes)} className="p-2 rounded-full bg-gray-700 text-gray-400 hover:bg-gray-600" title="Add/Edit Note">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 17a1 1 0 01-1-1v-6a1 1 0 112 0v6a1 1 0 01-1 1z" /></svg>
-                                    </button>
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
+                                    <button onClick={() => toggleFavorite(entry.id, entry.isFavorite)} style={{backgroundColor: entry.isFavorite ? '#ecc94b' : '#edf2f7', borderRadius: '50%', padding: '0.5rem'}} title="Favorite"><Icon path="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.28 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" className="w-4 h-4" /></button>
+                                    <button onClick={() => openNoteModal(entry.id, entry.notes)} style={{backgroundColor: '#edf2f7', borderRadius: '50%', padding: '0.5rem'}} title="Add/Edit Note"><Icon path="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 17a1 1 0 01-1-1v-6a1 1 0 112 0v6a1 1 0 01-1 1z" className="w-4 h-4" /></button>
                                 </div>
                             </div>
-                        )) : <p className="text-gray-500 italic text-center py-4">No history yet.</p>}
+                        )) : <p style={{color: '#a0aec0', fontStyle: 'italic', textAlign: 'center', padding: '1rem'}}>No history yet.</p>}
                     </div>
                 </div>
              </div>
 
-             {/* Note Modal */}
              {isNoteModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-gray-800 p-6 rounded-2xl shadow-xl w-full max-w-md border border-gray-700">
-                        <h3 className="text-xl font-bold text-white mb-4">Add/Edit Note</h3>
-                        <textarea className="w-full p-3 bg-gray-900 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:outline-none min-h-[120px]" value={currentNote} onChange={(e) => setCurrentNote(e.target.value)} placeholder="Type your note here..."></textarea>
-                        <div className="flex justify-end space-x-3 mt-4">
-                            <button onClick={() => setIsNoteModalOpen(false)} className="px-5 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors">Cancel</button>
-                            <button onClick={saveNote} className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors">Save Note</button>
+                <div style={styles.modalOverlay}>
+                    <div style={styles.modalContent}>
+                        <h3 style={{fontSize: '1.25rem', fontWeight: 600, marginBottom: '1rem'}}>Add/Edit Note</h3>
+                        <textarea style={{width: '100%', minHeight: '120px', padding: '0.75rem', border: '1px solid #cbd5e0', borderRadius: '8px'}} value={currentNote} onChange={(e) => setCurrentNote(e.target.value)} placeholder="Type your note here..."></textarea>
+                        <div style={{display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem'}}>
+                            <button onClick={() => setIsNoteModalOpen(false)} style={{...styles.button, width: 'auto', backgroundColor: '#a0aec0', padding: '0.5rem 1rem'}}>Cancel</button>
+                            <button onClick={saveNote} style={{...styles.button, width: 'auto', padding: '0.5rem 1rem'}}>Save Note</button>
                         </div>
                     </div>
                 </div>
