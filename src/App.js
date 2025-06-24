@@ -316,6 +316,7 @@ const App = () => {
             const visionResponse = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(visionPayload) });
             if (!visionResponse.ok) {
                  const errorData = await visionResponse.json();
+                 console.error("Vision API Error Response:", errorData); // Log detailed error
                  throw new Error(`Text extraction failed: ${errorData.error?.message || 'Check API key and billing.'}`);
             }
             const visionResult = await visionResponse.json();
@@ -380,8 +381,9 @@ const App = () => {
         <div className="app-container">
              <div className="main-card">
                 <header className="header">
-                    <h1 className="title">Signboard Translator</h1>
-                    <p className="subtitle">Translate text from images with a single click.</p>
+                    {/* --- Title and Subtitle Updated As Per Your Request --- */}
+                    <h1 className="title">Multilingual Image to Text Translator Web App</h1>
+                    <p className="subtitle">Translate Text from Images, Posters, and, Banners with a Image Upload</p>
                 </header>
                 
                 <div className="grid-container">
