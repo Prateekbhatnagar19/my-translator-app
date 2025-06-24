@@ -3,6 +3,9 @@ import { initializeApp } from "firebase/app";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, collection, addDoc, query, onSnapshot, serverTimestamp, doc, updateDoc } from "firebase/firestore";
 
+// --- Import the dedicated CSS file for styling ---
+import './App.css';
+
 // --- Helper component for icons ---
 const Icon = ({ path, className = "w-5 h-5" }) => (
     <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 20 20" fill="currentColor">
@@ -365,249 +368,74 @@ const App = () => {
         }
     };
     
-    // --- UI Revamped with Inline Styles for a Clean, Professional Look ---
-    const styles = {
-        appContainer: {
-            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-            backgroundColor: '#f4f7f6',
-            minHeight: '100vh',
-            padding: '2rem',
-            color: '#333'
-        },
-        mainCard: {
-            backgroundColor: '#ffffff',
-            borderRadius: '24px',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-            padding: '2rem',
-            maxWidth: '1200px',
-            margin: 'auto',
-            border: '1px solid #e2e8f0'
-        },
-        header: {
-            textAlign: 'center',
-            marginBottom: '2.5rem',
-        },
-        title: {
-            fontSize: '2.5rem',
-            fontWeight: 'bold',
-            color: '#1a202c',
-        },
-        subtitle: {
-            fontSize: '1.1rem',
-            color: '#718096',
-            marginTop: '0.5rem'
-        },
-        gridContainer: {
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '2rem',
-        },
-        leftColumn: {
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.5rem',
-        },
-        rightColumn: {
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.5rem',
-        },
-        stepCard: {
-            backgroundColor: '#fdfdff',
-            padding: '1.5rem',
-            borderRadius: '16px',
-            border: '1px solid #e2e8f0',
-        },
-        stepTitle: {
-            fontSize: '1.25rem',
-            fontWeight: '600',
-            color: '#2d3748',
-            marginBottom: '1rem',
-            display: 'flex',
-            alignItems: 'center',
-        },
-        stepNumber: {
-            backgroundColor: '#4299e1',
-            color: 'white',
-            borderRadius: '50%',
-            width: '2rem',
-            height: '2rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginRight: '0.75rem',
-            fontWeight: 'bold',
-        },
-        uploadBox: {
-            textAlign: 'center',
-            padding: '2rem',
-            border: '2px dashed #cbd5e0',
-            borderRadius: '12px',
-            cursor: 'pointer',
-            backgroundColor: '#f7fafc',
-            transition: 'background-color 0.2s ease-in-out',
-        },
-        imageDisplayBox: {
-            minHeight: '300px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: '#f7fafc',
-            borderRadius: '16px',
-            padding: '1rem',
-            position: 'relative',
-        },
-        imageElement: {
-            maxWidth: '100%',
-            maxHeight: '280px', // Constrains the image size
-            objectFit: 'contain',
-            borderRadius: '8px',
-        },
-        clearButton: {
-            position: 'absolute',
-            top: '1rem',
-            right: '1rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            border: '1px solid #e2e8f0',
-            borderRadius: '50%',
-            width: '2rem',
-            height: '2rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            cursor: 'pointer'
-        },
-        button: {
-            width: '100%',
-            padding: '0.75rem',
-            backgroundColor: '#3182ce',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem'
-        },
-        selectInput: {
-            width: '100%',
-            padding: '0.75rem',
-            border: '1px solid #cbd5e0',
-            borderRadius: '8px',
-            backgroundColor: 'white',
-            fontSize: '1rem',
-        },
-        historyContainer: {
-            marginTop: '2rem',
-            padding: '1.5rem',
-            backgroundColor: '#fdfdff',
-            borderRadius: '16px',
-            border: '1px solid #e2e8f0'
-        },
-        historyItem: {
-            backgroundColor: 'white',
-            padding: '1rem',
-            marginBottom: '0.75rem',
-            borderRadius: '12px',
-            border: '1px solid #e2e8f0',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem'
-        },
-        historyThumbnail: {
-            width: '4rem',
-            height: '4rem',
-            objectFit: 'cover',
-            borderRadius: '8px',
-            flexShrink: 0
-        },
-        modalOverlay: {
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-        modalContent: {
-            backgroundColor: 'white',
-            padding: '2rem',
-            borderRadius: '16px',
-            width: '100%',
-            maxWidth: '500px',
-        },
-    };
-    
     if (!authReady) {
         return (
-            <div style={styles.appContainer}>
+            <div className="app-container">
                 <p>Initializing Secure Connection...</p>
             </div>
         );
     }
     
     return (
-        <div style={styles.appContainer}>
-             <div style={styles.mainCard}>
-                <header style={styles.header}>
-                    <h1 style={styles.title}>Signboard Translator</h1>
-                    <p style={styles.subtitle}>Translate text from images with a single click.</p>
+        <div className="app-container">
+             <div className="main-card">
+                <header className="header">
+                    <h1 className="title">Signboard Translator</h1>
+                    <p className="subtitle">Translate text from images with a single click.</p>
                 </header>
                 
-                <div style={styles.gridContainer}>
+                <div className="grid-container">
                     {/* Left Column */}
-                    <div style={styles.leftColumn}>
-                        <div style={styles.stepCard}>
-                            <h2 style={styles.stepTitle}><span style={styles.stepNumber}>1</span> Choose Image Source</h2>
+                    <div className="column">
+                        <div className="step-card">
+                            <h2 className="step-title"><span className="step-number">1</span> Choose Image Source</h2>
                             {isCameraActive ? (
                                 <div>
                                     <video ref={videoRef} style={{ width: '100%', borderRadius: '8px', marginBottom: '1rem' }} autoPlay playsInline></video>
                                     <div style={{ display: 'flex', gap: '1rem' }}>
-                                        <button onClick={captureImage} style={styles.button}>Capture</button>
-                                        <button onClick={stopCamera} style={{...styles.button, backgroundColor: '#718096'}}>Cancel</button>
+                                        <button onClick={captureImage} className="button">Capture</button>
+                                        <button onClick={stopCamera} className="button" style={{ backgroundColor: '#718096'}}>Cancel</button>
                                     </div>
                                 </div>
                             ) : (
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                                    <label htmlFor="image-upload" style={styles.uploadBox}>
-                                        <span style={{ color: '#4299e1', fontWeight: '600' }}>Upload a file</span> or drag and drop
+                                    <label htmlFor="image-upload" className="upload-box">
+                                        <span className="upload-box-text">Upload a file</span> or drag and drop
                                     </label>
                                     <input type="file" id="image-upload" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
                                     <p style={{color: '#a0aec0'}}>- OR -</p>
-                                    <button onClick={openCamera} style={styles.button}>Use Camera</button>
+                                    <button onClick={openCamera} className="button">
+                                        <Icon path="M10 12a2 2 0 100-4 2 2 0 000 4z M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" />
+                                        Use Camera
+                                    </button>
                                 </div>
                             )}
                              <canvas ref={canvasRef} style={{display: 'none'}}></canvas>
                         </div>
 
-                        <div style={styles.stepCard}>
-                            <h2 style={styles.stepTitle}><span style={styles.stepNumber}>2</span> Select Language</h2>
-                            <select id="target-language" value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)} style={styles.selectInput}>
+                        <div className="step-card">
+                            <h2 className="step-title"><span className="step-number">2</span> Select Language</h2>
+                            <select id="target-language" value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)} className="select-input">
                                 {languages.map((lang) => <option key={lang} value={lang}>{lang}</option>)}
                             </select>
                         </div>
 
-                        <div style={styles.stepCard}>
-                            <h2 style={styles.stepTitle}><span style={styles.stepNumber}>3</span> Get Translation</h2>
-                            <button onClick={handleTranslate} disabled={isLoading || !selectedImage} style={{...styles.button, backgroundColor: isLoading || !selectedImage ? '#a0aec0' : '#2c7a7b', padding: '1rem', fontSize: '1.1rem'}}>
+                        <div className="step-card">
+                            <h2 className="step-title"><span className="step-number">3</span> Get Translation</h2>
+                            <button onClick={handleTranslate} disabled={isLoading || !selectedImage} className="button button-translate">
                                 {isLoading ? 'Translating...' : 'Translate Signboard Text'}
                             </button>
                         </div>
                     </div>
 
                     {/* Right Column */}
-                     <div style={styles.rightColumn}>
-                        <div style={styles.imageDisplayBox}>
+                     <div className="column">
+                        <div className="image-display-box">
                             {selectedImage ? (
                                 <>
-                                    <img src={overlayedImage || `data:image/jpeg;base64,${selectedImage}`} alt="Source for translation" style={styles.imageElement} />
-                                    <button onClick={handleClearImage} style={styles.clearButton} title="Clear Image">
-                                        <Icon path="M6 18L18 6M6 6l12 12" className="w-4 h-4 text-gray-600"/>
+                                    <img src={overlayedImage || `data:image/jpeg;base64,${selectedImage}`} alt="Source for translation" className="image-element" />
+                                    <button onClick={handleClearImage} className="clear-button" title="Clear Image">
+                                        <Icon path="M6 18L18 6M6 6l12 12" className="w-4 h-4" style={{color: '#4a5568'}}/>
                                     </button>
                                 </>
                             ) : (
@@ -619,19 +447,19 @@ const App = () => {
                         </div>
                         
                         {(extractedText || translatedText || error) && (
-                            <div style={styles.stepCard}>
+                            <div className="step-card results-card">
                                 {error && <div style={{backgroundColor: '#fed7d7', border: '1px solid #f56565', color: '#c53030', padding: '1rem', borderRadius: '8px', marginBottom: '1rem'}}>{error}</div>}
                                 
                                 {extractedText && <div style={{marginBottom: '1rem'}}>
-                                    <h3 style={{fontWeight: '600', marginBottom: '0.5rem'}}>Extracted Text</h3>
-                                    <p style={{backgroundColor: '#edf2f7', padding: '0.75rem', borderRadius: '8px', fontFamily: 'monospace', whiteSpace: 'pre-wrap', color: '#2d3748'}}>{extractedText}</p>
+                                    <h3 className="results-heading">Extracted Text</h3>
+                                    <p className="results-text-box">{extractedText}</p>
                                 </div>}
                                 
                                 {translatedText && <div style={{marginBottom: '1rem'}}>
-                                    <h3 style={{fontWeight: '600', marginBottom: '0.5rem'}}>Translated Text ({targetLanguage})</h3>
-                                    <div style={{backgroundColor: '#edf2f7', padding: '0.75rem', borderRadius: '8px', whiteSpace: 'pre-wrap', color: '#2d3748', display:'flex', justifyContent: 'space-between', alignItems: 'start'}}>
+                                    <h3 className="results-heading">Translated Text ({targetLanguage})</h3>
+                                    <div className="results-text-box translated">
                                         <span>{translatedText}</span>
-                                        <div style={{display: 'flex', gap: '0.5rem', flexShrink: 0}}>
+                                        <div className="action-buttons" style={{display: 'flex', gap: '0.5rem'}}>
                                             <button onClick={() => handleSpeak(translatedText)} title="Speak"><Icon path="M4.055 6.257A1 1 0 003 7.172v5.656a1 1 0 001.055.915 8.001 8.001 0 010-7.488zM5 6.5A1.5 1.5 0 016.5 5h1A1.5 1.5 0 019 6.5v7a1.5 1.5 0 01-1.5 1.5h-1A1.5 1.5 0 015 13.5v-7zm6.5-1.5a.5.5 0 000 1h1a.5.5 0 000-1h-1zm0 2a.5.5 0 000 1h3a.5.5 0 000-1h-3zm0 2a.5.5 0 000 1h3a.5.5 0 000-1h-3zm0 2a.5.5 0 000 1h1a.5.5 0 000-1h-1z"/></button>
                                             <button onClick={() => handleCopyTranslatedText(translatedText)} title="Copy"><Icon path="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9zM4 3a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H4z"/></button>
                                         </div>
@@ -639,28 +467,28 @@ const App = () => {
                                 </div>}
 
                                 {contextualInfo && <div>
-                                    <h3 style={{fontWeight: '600', marginBottom: '0.5rem'}}>Contextual Info</h3>
-                                    <p style={{backgroundColor: '#edf2f7', padding: '0.75rem', borderRadius: '8px', color: '#2d3748', whiteSpace: 'pre-wrap'}}>{contextualInfo}</p>
+                                    <h3 className="results-heading">Contextual Info</h3>
+                                    <p className="results-text-box translated">{contextualInfo}</p>
                                 </div>}
                             </div>
                         )}
                     </div>
                 </div>
                 
-                 <div style={styles.historyContainer}>
-                    <h2 style={{...styles.stepTitle, marginBottom: '1rem'}}>Translation History</h2>
-                    <div style={{maxHeight: '300px', overflowY: 'auto', paddingRight: '0.5rem'}}>
+                 <div className="history-container">
+                    <h2 className="step-title">Translation History</h2>
+                    <div className="history-list">
                         {history.length > 0 ? history.map((entry) => (
-                            <div key={entry.id} style={{...styles.historyItem, border: entry.isFavorite ? '2px solid #ecc94b' : '1px solid #e2e8f0'}}>
-                                <img src={`data:image/jpeg;base64,${entry.originalImageThumbnail}`} alt="Thumbnail" style={styles.historyThumbnail} />
+                            <div key={entry.id} className={`history-item ${entry.isFavorite ? 'favorite' : ''}`}>
+                                <img src={`data:image/jpeg;base64,${entry.originalImageThumbnail}`} alt="Thumbnail" className="history-thumbnail" />
                                 <div style={{flexGrow: 1}}>
                                     <p style={{fontFamily: 'monospace', fontSize: '0.9rem'}}><strong>Original:</strong> {entry.originalText}</p>
                                     <p style={{fontSize: '0.9rem'}}><strong>Translated:</strong> {entry.translatedText}</p>
                                     {entry.notes && <p style={{fontSize: '0.8rem', fontStyle: 'italic', marginTop: '0.25rem', color: '#718096'}}><strong>Note:</strong> {entry.notes}</p>}
                                 </div>
-                                <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
-                                    <button onClick={() => toggleFavorite(entry.id, entry.isFavorite)} style={{backgroundColor: entry.isFavorite ? '#ecc94b' : '#edf2f7', borderRadius: '50%', padding: '0.5rem'}} title="Favorite"><Icon path="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.28 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" className="w-4 h-4" /></button>
-                                    <button onClick={() => openNoteModal(entry.id, entry.notes)} style={{backgroundColor: '#edf2f7', borderRadius: '50%', padding: '0.5rem'}} title="Add/Edit Note"><Icon path="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 17a1 1 0 01-1-1v-6a1 1 0 112 0v6a1 1 0 01-1 1z" className="w-4 h-4" /></button>
+                                <div className="history-actions" style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
+                                    <button onClick={() => toggleFavorite(entry.id, entry.isFavorite)} className={`favorite-btn ${entry.isFavorite ? 'active' : ''}`} title="Favorite"><Icon path="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.28 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" className="w-4 h-4" /></button>
+                                    <button onClick={() => openNoteModal(entry.id, entry.notes)} title="Add/Edit Note"><Icon path="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 17a1 1 0 01-1-1v-6a1 1 0 112 0v6a1 1 0 01-1 1z" className="w-4 h-4" /></button>
                                 </div>
                             </div>
                         )) : <p style={{color: '#a0aec0', fontStyle: 'italic', textAlign: 'center', padding: '1rem'}}>No history yet.</p>}
@@ -669,13 +497,13 @@ const App = () => {
              </div>
 
              {isNoteModalOpen && (
-                <div style={styles.modalOverlay}>
-                    <div style={styles.modalContent}>
+                <div className="modal-overlay">
+                    <div className="modal-content">
                         <h3 style={{fontSize: '1.25rem', fontWeight: 600, marginBottom: '1rem'}}>Add/Edit Note</h3>
                         <textarea style={{width: '100%', minHeight: '120px', padding: '0.75rem', border: '1px solid #cbd5e0', borderRadius: '8px'}} value={currentNote} onChange={(e) => setCurrentNote(e.target.value)} placeholder="Type your note here..."></textarea>
                         <div style={{display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem'}}>
-                            <button onClick={() => setIsNoteModalOpen(false)} style={{...styles.button, width: 'auto', backgroundColor: '#a0aec0', padding: '0.5rem 1rem'}}>Cancel</button>
-                            <button onClick={saveNote} style={{...styles.button, width: 'auto', padding: '0.5rem 1rem'}}>Save Note</button>
+                            <button onClick={() => setIsNoteModalOpen(false)} className="button" style={{width: 'auto', backgroundColor: '#a0aec0'}}>Cancel</button>
+                            <button onClick={saveNote} className="button" style={{width: 'auto'}}>Save Note</button>
                         </div>
                     </div>
                 </div>
