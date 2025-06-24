@@ -103,9 +103,7 @@ const App = () => {
 
     useEffect(() => {
         if (authReady && firestoreDb && firebaseAuth?.currentUser) {
-            console.log("Setting up history listener for user:", firebaseAuth.currentUser.uid);
             const collectionPath = `artifacts/${currentAppId}/users/${firebaseAuth.currentUser.uid}/translations`;
-
             const q = query(collection(firestoreDb, collectionPath));
             
             const unsubscribeHistory = onSnapshot(q, (snapshot) => {
@@ -359,21 +357,17 @@ const App = () => {
             };
 
         } catch (err) {
-            // --- THIS IS THE ONLY CHANGE IN THIS ENTIRE FILE ---
-            // Log the entire error object to the console for detailed debugging
             console.error("Caught an error during translation:", err); 
-            // Update the UI with a more generic message, asking the user to check the console
             setError(`An error occurred. Check the browser console (Right-click -> Inspect -> Console) for details.`);
         } finally {
             setIsLoading(false);
         }
     };
     
-    // The JSX (HTML part) is unchanged
     if (!authReady) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-100 text-gray-700">
-                <svg className="animate-spin h-8 w-8 mr-3 text-blue-600" viewBox="0 0 24 24">
+            <div className="min-h-screen flex items-center justify-center bg-gray-900 text-gray-300 font-sans">
+                <svg className="animate-spin h-8 w-8 mr-3 text-blue-500" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -382,102 +376,169 @@ const App = () => {
         );
     }
     
+    // --- UI Revamped with Tailwind CSS for a Modern Look ---
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-700 via-blue-800 to-blue-900 flex items-center justify-center p-4 font-sans text-white overflow-auto">
-             <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-sm md:max-w-xl lg:max-w-3xl xl:max-w-4xl border border-blue-500">
-                <header className="text-center mb-6 sm:mb-8">
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-2 tracking-tight">
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-400 via-cyan-400 to-blue-500 animate-pulse">
-                            Multilingual Image Text Translator
-                        </span>
+        <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4 sm:p-6 font-sans">
+             <div className="bg-gray-800 bg-opacity-60 backdrop-blur-lg p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-4xl border border-gray-700">
+                
+                {/* Header */}
+                <header className="text-center mb-8">
+                    <h1 className="text-4xl sm:text-5xl font-extrabold mb-2 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-300">
+                        Signboard Translator
                     </h1>
+                    <p className="text-gray-400 text-lg">Translate text from images with a single click.</p>
                 </header>
-                <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 sm:p-6 rounded-2xl border border-blue-300 shadow-xl">
-                    <h2 className="block text-lg sm:text-xl font-bold text-gray-800 mb-4">1. Choose Image Source</h2>
-                    {isCameraActive ? (
-                        <div className="flex flex-col items-center space-y-4">
-                            <video ref={videoRef} className="w-full max-h-80 object-cover rounded-lg shadow-md" autoPlay playsInline></video>
-                            <div className="flex space-x-4">
-                                <button onClick={captureImage} className="px-5 py-2 bg-green-500 text-white font-semibold rounded-full shadow-md hover:bg-green-600">Click Image</button>
-                                <button onClick={stopCamera} className="px-5 py-2 bg-gray-500 text-white font-semibold rounded-full shadow-md hover:bg-gray-600">Close Camera</button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex flex-col items-center space-y-4">
-                            <input type="file" id="image-upload" accept="image/*" onChange={handleImageUpload} className="w-full p-2 border rounded" />
-                            <p className="text-gray-600">- OR -</p>
-                            <button onClick={openCamera} className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-full shadow-md hover:bg-blue-600">Open Camera</button>
-                        </div>
-                    )}
-                    <canvas ref={canvasRef} className="hidden"></canvas>
-                    {selectedImage && (
-                        <div className="mt-4 flex flex-col items-center">
-                            <img src={overlayedImage || `data:image/jpeg;base64,${selectedImage}`} alt="Source" className="max-w-full h-48 object-contain rounded-lg shadow-xl" />
-                            <button onClick={handleClearImage} className="mt-3 px-5 py-2 bg-red-600 text-white font-semibold rounded-full shadow-lg hover:bg-red-700">Clear Image</button>
-                        </div>
-                    )}
-                </div>
-                <div className="mb-6 bg-gradient-to-r from-purple-100 to-pink-100 p-4 sm:p-6 rounded-2xl border border-purple-300 shadow-xl">
-                    <label htmlFor="target-language" className="block text-lg sm:text-xl font-bold text-gray-800 mb-3">2. Select Target Language</label>
-                    <select id="target-language" value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)} className="w-full p-2 border rounded text-gray-800">
-                        {languages.map((lang) => <option key={lang} value={lang}>{lang}</option>)}
-                    </select>
-                </div>
-                <div className="mb-6 text-center">
-                    <button onClick={handleTranslate} disabled={isLoading || !selectedImage} className="w-full md:w-auto px-8 py-3 bg-green-500 text-white font-bold rounded-full shadow-lg hover:bg-green-600 disabled:opacity-50">
-                        {isLoading ? 'Translating...' : '3. Translate Signboard Text'}
-                    </button>
-                </div>
-                {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">{error}</div>}
-                {(extractedText || translatedText) && !isLoading && (
-                    <div className="bg-gray-100 p-4 rounded-lg shadow-inner text-gray-800">
-                        <div className="mb-4">
-                            <h2 className="text-xl font-bold mb-2">Extracted Text:</h2>
-                            <div className="bg-white p-3 rounded min-h-[80px]">{extractedText}</div>
-                        </div>
-                        <div className="mb-4">
-                            <h2 className="text-xl font-bold mb-2">Translated Text ({targetLanguage}):</h2>
-                            <div className="bg-white p-3 rounded min-h-[80px] flex justify-between items-center">
-                                <span>{translatedText}</span>
-                                {translatedText && (
-                                    <div className="flex space-x-2">
-                                        <button onClick={() => handleSpeak(translatedText)} title="Speak"><svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M7 3a1 1 0 000 2v10a1 1 0 100-2V5h1v10a1 1 0 102 0V5a1 1 0 10-2 0V3a1 1 0 00-1-1zm4 0a1 1 0 10-2 0v10a1 1 0 102 0V3z"></path></svg></button>
-                                        <button onClick={() => handleCopyTranslatedText(translatedText)} title="Copy"><svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"></path><path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h4a2 2 0 002-2V5a2 2 0 00-2-2H6z"></path></svg></button>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Left Column: Input and Controls */}
+                    <div className="flex flex-col space-y-6">
+                        {/* Step 1: Image Source */}
+                        <div className="bg-gray-700/50 p-6 rounded-2xl border border-gray-600">
+                            <h2 className="text-xl font-bold text-gray-200 mb-4 flex items-center">
+                                <span className="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3 font-bold text-lg">1</span>
+                                Choose Image Source
+                            </h2>
+                            {isCameraActive ? (
+                                <div className="flex flex-col items-center space-y-4">
+                                    <video ref={videoRef} className="w-full h-auto max-h-72 object-cover rounded-lg shadow-lg border-2 border-gray-600" autoPlay playsInline></video>
+                                    <div className="flex w-full space-x-4">
+                                        <button onClick={captureImage} className="w-full py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-lg shadow-md hover:scale-105 transition-transform duration-200 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2H4zm10 5a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" /></svg>
+                                            Capture
+                                        </button>
+                                        <button onClick={stopCamera} className="w-full py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white font-bold rounded-lg shadow-md hover:scale-105 transition-transform duration-200">Cancel</button>
                                     </div>
-                                )}
-                            </div>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center space-y-4">
+                                    <label htmlFor="image-upload" className="w-full text-center py-4 px-6 border-2 border-dashed border-gray-500 rounded-lg cursor-pointer hover:bg-gray-700 hover:border-gray-400 transition-colors duration-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mx-auto mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                        <span className="text-blue-400 font-semibold">Upload a file</span>
+                                        <span className="text-gray-400"> or drag and drop</span>
+                                    </label>
+                                    <input type="file" id="image-upload" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                                    <p className="text-gray-500">- OR -</p>
+                                    <button onClick={openCamera} className="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold rounded-lg shadow-md hover:scale-105 transition-transform duration-200 flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" /></svg>
+                                        Use Camera
+                                    </button>
+                                </div>
+                            )}
+                            <canvas ref={canvasRef} className="hidden"></canvas>
                         </div>
-                        {contextualInfo && <div><h2 className="text-xl font-bold mb-2">Contextual Info:</h2><div className="bg-white p-3 rounded min-h-[80px]">{contextualInfo}</div></div>}
+
+                        {/* Step 2: Language Selection */}
+                         <div className="bg-gray-700/50 p-6 rounded-2xl border border-gray-600">
+                            <h2 className="text-xl font-bold text-gray-200 mb-4 flex items-center">
+                                <span className="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3 font-bold text-lg">2</span>
+                                Select Language
+                            </h2>
+                            <select id="target-language" value={targetLanguage} onChange={(e) => setTargetLanguage(e.target.value)} className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                {languages.map((lang) => <option key={lang} value={lang}>{lang}</option>)}
+                            </select>
+                        </div>
+                        
+                        {/* Step 3: Translate Button */}
+                         <div className="bg-gray-700/50 p-6 rounded-2xl border border-gray-600">
+                             <h2 className="text-xl font-bold text-gray-200 mb-4 flex items-center">
+                                <span className="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center mr-3 font-bold text-lg">3</span>
+                                Get Translation
+                            </h2>
+                            <button onClick={handleTranslate} disabled={isLoading || !selectedImage} className="w-full py-4 bg-gradient-to-r from-teal-500 to-cyan-500 text-white font-extrabold text-lg rounded-lg shadow-lg hover:scale-105 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-center">
+                                {isLoading ? (
+                                    <>
+                                        <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                        Translating...
+                                    </>
+                                ) : 'Translate Signboard Text'}
+                            </button>
+                        </div>
                     </div>
-                )}
-                <div className="mt-8 bg-gray-50 p-4 rounded-xl shadow-lg">
-                    <h2 className="text-xl font-bold text-gray-800 mb-4">Translation History</h2>
-                    <div className="max-h-60 overflow-y-auto">
-                        {history.length > 0 ? history.map((entry) => (
-                            <div key={entry.id} className={`p-3 mb-2 rounded-lg bg-white shadow flex items-center ${entry.isFavorite ? 'border-2 border-yellow-400' : ''}`}>
-                                <img src={`data:image/jpeg;base64,${entry.originalImageThumbnail}`} alt="Thumb" className="w-16 h-16 object-cover rounded mr-4" />
-                                <div className="flex-grow text-sm text-gray-700">
-                                    <p><strong>Original:</strong> {entry.originalText}</p>
-                                    <p><strong>Translated:</strong> {entry.translatedText}</p>
-                                    {entry.notes && <p className="text-xs italic mt-1"><strong>Note:</strong> {entry.notes}</p>}
+
+                    {/* Right Column: Image and Results */}
+                    <div className="flex flex-col space-y-6">
+                        {/* Image Display */}
+                        <div className="bg-gray-700/50 p-6 rounded-2xl border border-gray-600 min-h-[300px] flex flex-col justify-center items-center">
+                             {selectedImage ? (
+                                <div className="w-full relative">
+                                    <img src={overlayedImage || `data:image/jpeg;base64,${selectedImage}`} alt="Source for translation" className="w-full h-auto max-h-64 object-contain rounded-lg shadow-2xl" />
+                                    <button onClick={handleClearImage} className="absolute -top-3 -right-3 bg-red-600 text-white rounded-full h-8 w-8 flex items-center justify-center shadow-lg hover:bg-red-700 hover:scale-110 transition-transform">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
                                 </div>
-                                <div className="flex flex-col space-y-1 ml-2">
-                                    <button onClick={() => toggleFavorite(entry.id, entry.isFavorite)} className={`p-1 rounded-full ${entry.isFavorite ? 'bg-yellow-400' : 'bg-gray-200'}`} title="Favorite"><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.28 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg></button>
-                                    <button onClick={() => openNoteModal(entry.id, entry.notes)} className="p-1 rounded-full bg-blue-200" title="Add Note"><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM3 17a1 1 0 01-1-1V4a1 1 0 112 0v12a1 1 0 01-1 1z"></path></svg></button>
+                            ) : (
+                               <div className="text-center text-gray-500">
+                                   <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6l2-2m-2 2l-2-2m0 0l-2 2m2-2l2 2" /></svg>
+                                   <p>Your image will appear here</p>
+                               </div>
+                            )}
+                        </div>
+                        
+                        {/* Results Area */}
+                        {(extractedText || translatedText || error) && (
+                            <div className="bg-gray-700/50 p-6 rounded-2xl border border-gray-600 flex-grow">
+                                {error && <div className="bg-red-500/30 border border-red-500 text-red-300 px-4 py-3 rounded-lg mb-4">{error}</div>}
+                                
+                                {extractedText && <div className="mb-4">
+                                    <h3 className="text-lg font-bold text-gray-300 mb-2">Extracted Text</h3>
+                                    <p className="bg-gray-900/70 p-3 rounded-lg text-gray-300 font-mono text-sm whitespace-pre-wrap">{extractedText}</p>
+                                </div>}
+                                
+                                {translatedText && <div className="mb-4">
+                                    <h3 className="text-lg font-bold text-gray-300 mb-2">Translated Text ({targetLanguage})</h3>
+                                    <div className="bg-gray-900/70 p-3 rounded-lg text-gray-200 text-sm whitespace-pre-wrap flex justify-between items-start">
+                                        <span>{translatedText}</span>
+                                        <div className="flex space-x-2">
+                                            <button onClick={() => handleSpeak(translatedText)} title="Speak" className="text-gray-400 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M4.055 6.257A1 1 0 003 7.172v5.656a1 1 0 001.055.915 8.001 8.001 0 010-7.488z" /><path fillRule="evenodd" d="M5 6.5A1.5 1.5 0 016.5 5h1A1.5 1.5 0 019 6.5v7a1.5 1.5 0 01-1.5 1.5h-1A1.5 1.5 0 015 13.5v-7zm6.5-1.5a.5.5 0 000 1h1a.5.5 0 000-1h-1zm0 2a.5.5 0 000 1h3a.5.5 0 000-1h-3zm0 2a.5.5 0 000 1h3a.5.5 0 000-1h-3zm0 2a.5.5 0 000 1h1a.5.5 0 000-1h-1z" clipRule="evenodd" /></svg></button>
+                                            <button onClick={() => handleCopyTranslatedText(translatedText)} title="Copy" className="text-gray-400 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z" /><path d="M4 3a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H4z" /></svg></button>
+                                        </div>
+                                    </div>
+                                </div>}
+
+                                {contextualInfo && <div>
+                                    <h3 className="text-lg font-bold text-gray-300 mb-2">Contextual Info</h3>
+                                    <p className="bg-gray-900/70 p-3 rounded-lg text-gray-300 text-sm whitespace-pre-wrap">{contextualInfo}</p>
+                                </div>}
+                            </div>
+                        )}
+                    </div>
+                </div>
+                
+                 {/* Translation History Section */}
+                <div className="mt-8 bg-gray-700/50 p-6 rounded-2xl border border-gray-600">
+                    <h2 className="text-xl font-bold text-gray-200 mb-4">Translation History</h2>
+                    <div className="max-h-64 overflow-y-auto pr-2">
+                        {history.length > 0 ? history.map((entry) => (
+                            <div key={entry.id} className={`p-4 mb-3 rounded-xl bg-gray-800/60 shadow-lg flex items-center space-x-4 transition-all duration-200 ${entry.isFavorite ? 'ring-2 ring-yellow-500' : 'border border-gray-700'}`}>
+                                <img src={`data:image/jpeg;base64,${entry.originalImageThumbnail}`} alt="Thumbnail" className="w-16 h-16 object-cover rounded-lg flex-shrink-0" />
+                                <div className="flex-grow text-sm text-gray-300">
+                                    <p className="font-mono"><strong className="font-sans font-semibold text-gray-400">Original:</strong> {entry.originalText}</p>
+                                    <p><strong className="font-semibold text-gray-400">Translated:</strong> {entry.translatedText}</p>
+                                    {entry.notes && <p className="text-xs italic mt-1 text-gray-400"><strong>Note:</strong> {entry.notes}</p>}
+                                </div>
+                                <div className="flex flex-col space-y-2">
+                                    <button onClick={() => toggleFavorite(entry.id, entry.isFavorite)} className={`p-2 rounded-full transition-colors ${entry.isFavorite ? 'bg-yellow-500 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'}`} title={entry.isFavorite ? "Unfavorite" : "Favorite"}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.28 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                                    </button>
+                                    <button onClick={() => openNoteModal(entry.id, entry.notes)} className="p-2 rounded-full bg-gray-700 text-gray-400 hover:bg-gray-600" title="Add/Edit Note">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828zM5 17a1 1 0 01-1-1v-6a1 1 0 112 0v6a1 1 0 01-1 1z" /></svg>
+                                    </button>
                                 </div>
                             </div>
-                        )) : <p className="text-gray-500 italic text-center">No history yet.</p>}
+                        )) : <p className="text-gray-500 italic text-center py-4">No history yet.</p>}
                     </div>
                 </div>
              </div>
+
+             {/* Note Modal */}
              {isNoteModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
-                        <h3 className="text-xl font-bold text-gray-800 mb-4">Add/Edit Note</h3>
-                        <textarea className="w-full p-2 border rounded text-gray-800" value={currentNote} onChange={(e) => setCurrentNote(e.target.value)} rows="4"></textarea>
-                        <div className="flex justify-end space-x-2 mt-4">
-                            <button onClick={() => setIsNoteModalOpen(false)} className="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-                            <button onClick={saveNote} className="px-4 py-2 bg-blue-600 text-white rounded">Save Note</button>
+                <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div className="bg-gray-800 p-6 rounded-2xl shadow-xl w-full max-w-md border border-gray-700">
+                        <h3 className="text-xl font-bold text-white mb-4">Add/Edit Note</h3>
+                        <textarea className="w-full p-3 bg-gray-900 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:outline-none min-h-[120px]" value={currentNote} onChange={(e) => setCurrentNote(e.target.value)} placeholder="Type your note here..."></textarea>
+                        <div className="flex justify-end space-x-3 mt-4">
+                            <button onClick={() => setIsNoteModalOpen(false)} className="px-5 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors">Cancel</button>
+                            <button onClick={saveNote} className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors">Save Note</button>
                         </div>
                     </div>
                 </div>
